@@ -1,0 +1,112 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Kendo UI in ASP.NET Core</h1>
+</div>
+
+<div class="col-md-12">
+    <p>Kendo UI version <strong id="kendoVersion"> </strong></p>
+
+    @*Kendo Combobox Example *@
+    <input id="cmbEmployee" />
+    <br />
+    <hr />
+    @*KEndo Grid Example *@
+    <div id="grid"></div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#kendoVersion").text(kendo.version);
+
+        $("#cmbEmployee").kendoComboBox({
+            dataSource: [{ EmployeeID: 1, EmployeeName: "DuHieu" },
+            { EmployeeID: 2, EmployeeName: "John" },
+            { EmployeeID: 3, EmployeeName: "Erik" },
+            { EmployeeID: 4, EmployeeName: "Henry" },
+
+            ],
+            placeholder: "Select",
+            dataTextField: "EmployeeName",
+            dataValueField: "EmployeeID",
+            index: 0,
+            suggest: true,
+            filter: "contains"
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: CustomerHelper.gridDataSource(),
+            filterable: true,
+            sortable: true,
+            columns: CustomerHelper.GenerateColumns(),
+            editable: false,
+            navigatable: true,
+            selectable: "row"
+        });
+    });
+
+    var CustomerHelper = {
+        GenerateColumns: function () {
+            return columns = [
+                {
+                    template: "<div class='product-photo' style='background-image: url(/images/#:data.CustomerID#.png);'></div>",
+                    width: 15
+                },
+                { field: "CustomerID", title: "ID", width: 20, editable: false },
+                { field: "ContactName", title: "Name", width: 60, editable: false },
+                { field: "CompanyName", title: "Company", width: 60, editable: false },
+                { field: "Country", title: "Country", width: 60, editable: false },
+
+            ]
+        },
+
+        gridDataSource: function () {
+            var gridDataSource = new kendo.data.DataSource({
+                type: "json",
+                serverPaging: true,
+                serverSorting: true,
+                serverFiltering: true,
+                allowUnsort: true,
+                pageSize: 5,
+                transport: {
+                    read: {
+                        url: '../Customer/GetAllCustomer',
+                        type: "GET",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8"
+                    },
+                    parameterMap: function (options) {
+                        return options;
+                    }
+                },
+                schema: {
+                    data: "Items", total: "TotalCount",
+                    model: {
+                        fields: {
+
+                        }
+                    },
+                }
+            });
+            return gridDataSource;
+        }
+    }
+</script>
+<style type="text/css">
+    .product-photo {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-size: 32px 35px;
+        background-position: center center;
+        vertical-align: middle;
+        line-height: 32px;
+        box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+        margin-right: 5px;
+    }
+</style>
